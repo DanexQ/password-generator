@@ -2,61 +2,137 @@ import { StyledContainer } from "./StyledContainer";
 import styled from "styled-components";
 import StrengthVerifier from "./StrengthVerifier";
 import { DataForm } from "../interfaces/interfaces";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface Generator {
-  dataForm: DataForm;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const GeneratorForm = ({ dataForm, handleChange, handleSubmit }: Generator) => {
+interface requirements {
+  includeUpper: boolean;
+  includeLower: boolean;
+  includeNumbers: boolean;
+  includeSymbols: boolean;
+}
+
+const charCombination = ({
+  includeUpper,
+  includeLower,
+  includeNumbers,
+  includeSymbols,
+}: requirements) => {
+  let chars = "";
+  if (includeLower) chars = chars.concat("bcdfghjklmnpqrstvwxz");
+  if (includeUpper) chars = chars.concat("BCDFGHJKLMNPQRSTVWXZ");
+  if (includeNumbers) chars = chars.concat("1234567890");
+  if (includeSymbols) chars = chars.concat("!@#$%^&*");
+  return chars;
+};
+
+const GeneratorForm = ({ setPassword }: Generator) => {
+  const [dataForm, setDataForm] = useState<DataForm>({
+    passwordLength: 0,
+    includeUpper: false,
+    includeLower: false,
+    includeNumbers: false,
+    includeSymbols: false,
+  });
+  const [combination, setCombination] = useState(() =>
+    charCombination(dataForm)
+  );
+
+  useEffect(() => {
+    setCombination(() => charCombination(dataForm));
+  }, [
+    dataForm.includeLower,
+    dataForm.includeUpper,
+    dataForm.includeNumbers,
+    dataForm.includeSymbols,
+  ]);
+
+  useEffect(() => {
+    setDataForm((prevData) => ({
+      ...prevData,
+      passwordLength:
+        prevData.passwordLength > combination.length
+          ? combination.length
+          : prevData.passwordLength,
+    }));
+  }, [combination]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, checked } = e.target;
+    setDataForm((prevData) => ({
+      ...prevData,
+      [name]: name.startsWith("include") ? checked : value,
+    }));
+  };
+
+  const canGenerate = Object.values(dataForm).some((key) => key === true);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let functionCombination = combination;
+    let newPassword = "";
+    for (let i = 0; i < dataForm.passwordLength; i++) {
+      console.log(i);
+      const randomNumber = Math.floor(
+        Math.random() * functionCombination.length
+      );
+      newPassword = newPassword + functionCombination.at(randomNumber);
+      functionCombination =
+        functionCombination.slice(0, randomNumber) +
+        functionCombination.slice(randomNumber + 1);
+    }
+    setPassword(newPassword);
+  };
+
   return (
     <StyledContainer>
       <PasswordLength>
         <h2>Password length</h2>
         <span>{dataForm.passwordLength}</span>
       </PasswordLength>
-      <StyledForm onSubmit={(e) => handleSubmit(e)}>
+      <StyledForm onSubmit={handleSubmit}>
         <Slider
           name="passwordLength"
           type="range"
           min="8"
-          max="20"
+          max={combination.length}
           value={dataForm.passwordLength}
-          style={{ gridColumn: "1/3" }}
-          onChange={(e) => handleChange(e)}
+          onChange={handleChange}
+          step="1"
         />
         <input
           type="checkbox"
           checked={dataForm.includeUpper}
           name="includeUpper"
-          onChange={(e) => handleChange(e)}
+          onChange={handleChange}
         />
         <label htmlFor="includeUpper">Include Upper Case Letters</label>
         <input
           type="checkbox"
           checked={dataForm.includeLower}
           name="includeLower"
-          onChange={(e) => handleChange(e)}
+          onChange={handleChange}
         />
         <label htmlFor="includeLower">Include Lower Case Letters</label>
         <input
           type="checkbox"
           checked={dataForm.includeNumbers}
           name="includeNumbers"
-          onChange={(e) => handleChange(e)}
+          onChange={handleChange}
         />
         <label htmlFor="includeNumbers">Include Numbers</label>
         <input
           type="checkbox"
           checked={dataForm.includeSymbols}
           name="includeSymbols"
-          onChange={(e) => handleChange(e)}
+          onChange={handleChange}
         />
         <label htmlFor="includeSymbols">Include Symbols</label>
         <StrengthVerifier dataForm={dataForm} />
-        <SubmitButton>GENERATE PASSWORD</SubmitButton>
+        <SubmitButton disabled={!canGenerate}>GENERATE PASSWORD</SubmitButton>
       </StyledForm>
     </StyledContainer>
   );
@@ -81,6 +157,7 @@ const StyledForm = styled.form`
     background: #1b1b1b;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.2s;
 
     &:checked {
       background: green;
@@ -101,6 +178,7 @@ const PasswordLength = styled.div`
 `;
 
 const Slider = styled.input`
+  grid-column: 1/3;
   -webkit-appearance: none;
   background: #1b1b1b;
   border-radius: 20px;

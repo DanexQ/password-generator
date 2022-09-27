@@ -5,8 +5,8 @@ export const StyledContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-direction: column;
-  width: 500px;
-  padding: 2rem;
+  width: 600px;
+  padding: 2rem 3rem;
   background-color: #343434;
   font-size: 1rem;
 `;
