@@ -40,15 +40,25 @@ const GeneratorForm = ({ setPassword }: Generator) => {
   const [combination, setCombination] = useState(() =>
     charCombination(dataForm)
   );
+  const canGenerate =
+    Object.values(dataForm).some((key) => key === true) &&
+    dataForm.passwordLength !== 0;
+  const sliderValue =
+    combination.length !== 0
+      ? (dataForm.passwordLength / combination.length) * 100
+      : 0;
 
-  useEffect(() => {
-    setCombination(() => charCombination(dataForm));
-  }, [
-    dataForm.includeLower,
-    dataForm.includeUpper,
-    dataForm.includeNumbers,
-    dataForm.includeSymbols,
-  ]);
+  useEffect(
+    () => {
+      setCombination(() => charCombination(dataForm));
+    }, // eslint-disable-next-line
+    [
+      dataForm.includeLower,
+      dataForm.includeUpper,
+      dataForm.includeNumbers,
+      dataForm.includeSymbols,
+    ]
+  );
 
   useEffect(() => {
     setDataForm((prevData) => ({
@@ -67,8 +77,6 @@ const GeneratorForm = ({ setPassword }: Generator) => {
       [name]: name.startsWith("include") ? checked : value,
     }));
   };
-
-  const canGenerate = Object.values(dataForm).some((key) => key === true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -95,9 +103,10 @@ const GeneratorForm = ({ setPassword }: Generator) => {
       </PasswordLength>
       <StyledForm onSubmit={handleSubmit}>
         <Slider
+          sliderValue={sliderValue}
           name="passwordLength"
           type="range"
-          min="8"
+          min="1"
           max={combination.length}
           value={dataForm.passwordLength}
           onChange={handleChange}
@@ -177,23 +186,36 @@ const PasswordLength = styled.div`
   }
 `;
 
-const Slider = styled.input`
+const Slider = styled.input<{ sliderValue: number }>`
+  position: relative;
   grid-column: 1/3;
   -webkit-appearance: none;
-  background: #1b1b1b;
+  background: linear-gradient(
+    to right,
+    green ${({ sliderValue }) => sliderValue}%,
+    #1b1b1b ${({ sliderValue }) => sliderValue}%
+  );
   border-radius: 20px;
   height: 10px;
   margin: 1rem 0;
   width: 90%;
   justify-self: center;
+  z-index: 1;
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    background: green;
-    width: 25px;
-    height: 25px;
+    background: #1b1b1b;
+    border: 4px solid green;
+    width: 35px;
+    height: 35px;
     border-radius: 20px;
     transition: all 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+
+    &:active {
+      cursor: grab;
+    }
   }
 
   &:hover {

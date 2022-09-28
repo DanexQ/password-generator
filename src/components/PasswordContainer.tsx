@@ -2,16 +2,6 @@ import styled from "styled-components";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useState } from "react";
 
-const StyledContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 600px;
-  padding: 2rem;
-  background-color: #343434;
-  font-size: 2rem;
-`;
-
 const PasswordContainer = ({ password }: { password: string }): JSX.Element => {
   const [text, setText] = useState("Copy to clipboard");
   const handleClick = () => {
@@ -35,6 +25,16 @@ const PasswordContainer = ({ password }: { password: string }): JSX.Element => {
 };
 
 export default PasswordContainer;
+
+const StyledContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 600px;
+  padding: 2rem;
+  background-color: #343434;
+  font-size: 2rem;
+`;
 
 const MyNewPassword = styled.h2`
   font-size: 2rem;
