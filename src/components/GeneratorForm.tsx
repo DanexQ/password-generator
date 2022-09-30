@@ -6,14 +6,15 @@ import React, { useState, useEffect } from "react";
 
 interface Generator {
   setPassword: React.Dispatch<React.SetStateAction<string>>;
+  password?: string;
 }
 
-interface requirements {
+type requirements = {
   includeUpper: boolean;
   includeLower: boolean;
   includeNumbers: boolean;
   includeSymbols: boolean;
-}
+};
 
 const charCombination = ({
   includeUpper,
@@ -29,7 +30,8 @@ const charCombination = ({
   return chars;
 };
 
-const GeneratorForm = ({ setPassword }: Generator) => {
+const GeneratorForm = ({ setPassword, password }: Generator) => {
+  const [strength, setStrength] = useState(0);
   const [dataForm, setDataForm] = useState<DataForm>({
     passwordLength: 0,
     includeUpper: false,
@@ -37,9 +39,11 @@ const GeneratorForm = ({ setPassword }: Generator) => {
     includeNumbers: false,
     includeSymbols: false,
   });
+
   const [combination, setCombination] = useState(() =>
     charCombination(dataForm)
   );
+
   const canGenerate =
     Object.values(dataForm).some((key) => key === true) &&
     dataForm.passwordLength !== 0;
@@ -76,6 +80,18 @@ const GeneratorForm = ({ setPassword }: Generator) => {
       ...prevData,
       [name]: name.startsWith("include") ? checked : value,
     }));
+    const howMuchSecured =
+      dataForm.passwordLength * 0.25 +
+      Number(dataForm.includeLower) * 5 +
+      Number(dataForm.includeUpper) * 5 +
+      Number(dataForm.includeSymbols) * 5 +
+      Number(dataForm.includeNumbers) * 5;
+    console.log(howMuchSecured);
+    howMuchSecured >= 23.5 && setStrength(5);
+    howMuchSecured >= 18.5 && howMuchSecured < 23.5 && setStrength(4);
+    howMuchSecured >= 13.5 && howMuchSecured < 18.5 && setStrength(3);
+    howMuchSecured >= 8.5 && howMuchSecured < 13.5 && setStrength(2);
+    howMuchSecured < 8.5 && setStrength(1);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -83,7 +99,6 @@ const GeneratorForm = ({ setPassword }: Generator) => {
     let functionCombination = combination;
     let newPassword = "";
     for (let i = 0; i < dataForm.passwordLength; i++) {
-      console.log(i);
       const randomNumber = Math.floor(
         Math.random() * functionCombination.length
       );
@@ -140,7 +155,7 @@ const GeneratorForm = ({ setPassword }: Generator) => {
           onChange={handleChange}
         />
         <label htmlFor="includeSymbols">Include Symbols</label>
-        <StrengthVerifier dataForm={dataForm} />
+        <StrengthVerifier strength={strength} />
         <SubmitButton disabled={!canGenerate}>GENERATE PASSWORD</SubmitButton>
       </StyledForm>
     </StyledContainer>

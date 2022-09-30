@@ -1,11 +1,14 @@
 import styled from "styled-components";
-import { DataFormObj } from "../interfaces/interfaces";
 
-const StrengthVerifier = ({ dataForm }: DataFormObj): JSX.Element => {
+interface props {
+  strength: number;
+}
+
+const StrengthVerifier = ({ strength }: props): JSX.Element => {
   return (
     <VerifierContainer>
       Strength:
-      <StrengthScale>
+      <StrengthScale strength={strength}>
         <StrengthUnit></StrengthUnit>
         <StrengthUnit></StrengthUnit>
         <StrengthUnit></StrengthUnit>
@@ -38,10 +41,14 @@ const StrengthUnit = styled.div`
   border-radius: 2px;
 `;
 
-const StrengthScale = styled.div`
+const StrengthScale = styled.div<{ strength: number }>`
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0.4rem;
   gap: 0.5rem;
+
+  > *:nth-child(-n + ${({ strength }) => strength}) {
+    background-color: green;
+  }
 `;

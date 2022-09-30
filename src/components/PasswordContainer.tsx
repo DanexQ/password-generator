@@ -15,7 +15,9 @@ const PasswordContainer = ({ password }: { password: string }): JSX.Element => {
 
   return (
     <StyledContainer>
-      <MyNewPassword>{password}</MyNewPassword>
+      <MyNewPassword>
+        {password || <Placeholder>FTnu54@s!</Placeholder>}
+      </MyNewPassword>
       <StyledButton onClick={handleClick} onMouseOut={handleMouseOut}>
         <ContentCopyIcon />
         <Announcement>{text}</Announcement>
@@ -80,4 +82,8 @@ const Announcement = styled.p`
   transform-origin: center;
   transform: translate(-50%, -100%);
   opacity: 0;
+`;
+
+const Placeholder = styled.p`
+  color: #606060;
 `;

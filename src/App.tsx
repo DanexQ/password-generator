@@ -9,8 +9,8 @@ function App() {
   return (
     <Main>
       <Title>PASSWORD GENERATOR</Title>
-      <PasswordContainer password={password || "Generated Password"} />
-      <GeneratorForm setPassword={setPassword} />
+      <PasswordContainer password={password} />
+      <GeneratorForm setPassword={setPassword} password={password} />
     </Main>
   );
 }
